@@ -1,8 +1,6 @@
 use regex::{Regex, RegexBuilder};
-use std::{
-    fmt::Display,
-    io::{self, prelude::*, BufReader},
-};
+use rsgex::prelude::*;
+use std::io::{self, prelude::*, BufReader};
 fn main() {
     let (pattern, hay) = get_user_input();
     let build_regex = build_regex(pattern);
@@ -52,94 +50,4 @@ where
         OutputKind::Hay(hay) => Ok(hay.to_string()),
         OutputKind::Default => Ok(String::new()),
     }
-}
-struct RegexContainer {
-    pattern: String,
-}
-impl RegexContainer {
-    fn new(pattern: String) -> RegexContainer {
-        RegexContainer { pattern }
-    }
-    fn sanitize(mut self) -> Self {
-        self.pattern = self.pattern.trim_end_matches("\n").to_string();
-        self
-    }
-}
-impl Display for RegexContainer {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, r"{}", self.pattern)
-    }
-}
-
-struct HayContainer {
-    hay: String,
-}
-impl HayContainer {
-    fn new(hay: String) -> HayContainer {
-        HayContainer { hay }
-    }
-    fn get(&self) -> &str {
-        self.hay.as_str()
-    }
-}
-trait CreateObject {
-    fn new_object(&self, s: String, kind: InputKind) -> OutputKind {
-        match kind {
-            InputKind::Pattern => OutputKind::Pattern(UserPattern { pattern: s }),
-            InputKind::Hay => OutputKind::Hay(UserHay { hay: s }),
-        }
-    }
-}
-struct UserPattern {
-    pattern: String,
-}
-impl UserPattern {
-    fn new() -> UserPattern {
-        UserPattern {
-            pattern: String::new(),
-        }
-    }
-}
-impl CreateObject for UserPattern {
-    fn new_object(&self, s: String, kind: InputKind) -> OutputKind {
-        match kind {
-            InputKind::Pattern => OutputKind::Pattern(UserPattern { pattern: s }),
-            _ => OutputKind::Default,
-        }
-    }
-}
-impl Display for UserPattern {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, r"{}", self.pattern)
-    }
-}
-struct UserHay {
-    hay: String,
-}
-impl UserHay {
-    fn new() -> UserHay {
-        UserHay { hay: String::new() }
-    }
-}
-impl CreateObject for UserHay {
-    fn new_object(&self, s: String, kind: InputKind) -> OutputKind {
-        match kind {
-            InputKind::Hay => OutputKind::Hay(UserHay { hay: s }),
-            _ => OutputKind::Default,
-        }
-    }
-}
-impl Display for UserHay {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.hay)
-    }
-}
-enum InputKind {
-    Pattern,
-    Hay,
-}
-enum OutputKind {
-    Pattern(UserPattern),
-    Hay(UserHay),
-    Default,
 }
