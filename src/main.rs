@@ -30,7 +30,7 @@ fn get_user_input() -> (RegexContainer, HayContainer) {
 }
 fn collector<T>(func: T, kind: InputKind) -> io::Result<String>
 where
-    T: CreateObject,
+    T: CreateOutput,
 {
     match kind {
         InputKind::Pattern => {
@@ -44,7 +44,7 @@ where
     let mut buf = String::new();
     let mut reader = BufReader::new(stdin);
     reader.read_line(&mut buf)?;
-    let output = func.new_object(buf, kind);
+    let output = func.new_output(buf, kind);
     match output {
         OutputKind::Pattern(pattern) => Ok(pattern.to_string()),
         OutputKind::Hay(hay) => Ok(hay.to_string()),

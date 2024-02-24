@@ -38,10 +38,10 @@ impl HayContainer {
         self.hay.as_str()
     }
 }
-/// A trait that defines user input as objects.
-pub trait CreateObject {
-    /// Creates a new CreateObject.
-    fn new_object(&self, s: String, kind: InputKind) -> OutputKind {
+/// A trait that defines valid process output.
+pub trait CreateOutput {
+    /// Creates a new valid output.
+    fn new_output(&self, s: String, kind: InputKind) -> OutputKind {
         match kind {
             InputKind::Pattern => OutputKind::Pattern(UserPattern { pattern: s }),
             InputKind::Hay => OutputKind::Hay(UserHay { hay: s }),
@@ -60,8 +60,8 @@ impl UserPattern {
         }
     }
 }
-impl CreateObject for UserPattern {
-    fn new_object(&self, s: String, kind: InputKind) -> OutputKind {
+impl CreateOutput for UserPattern {
+    fn new_output(&self, s: String, kind: InputKind) -> OutputKind {
         match kind {
             InputKind::Pattern => OutputKind::Pattern(UserPattern { pattern: s }),
             _ => OutputKind::Default,
@@ -83,8 +83,8 @@ impl UserHay {
         UserHay { hay: String::new() }
     }
 }
-impl CreateObject for UserHay {
-    fn new_object(&self, s: String, kind: InputKind) -> OutputKind {
+impl CreateOutput for UserHay {
+    fn new_output(&self, s: String, kind: InputKind) -> OutputKind {
         match kind {
             InputKind::Hay => OutputKind::Hay(UserHay { hay: s }),
             _ => OutputKind::Default,

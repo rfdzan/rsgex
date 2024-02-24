@@ -1,3 +1,3 @@
 pub use crate::{
-    CreateObject, HayContainer, InputKind, OutputKind, RegexContainer, UserHay, UserPattern,
+    CreateOutput, HayContainer, InputKind, OutputKind, RegexContainer, UserHay, UserPattern,
 };
