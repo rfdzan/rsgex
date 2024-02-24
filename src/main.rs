@@ -1,34 +1,39 @@
-use regex::RegexBuilder;
+use regex::{Regex, RegexBuilder};
 use std::{
     fmt::Display,
     io::{self, prelude::*, BufReader},
 };
 fn main() {
     let (pattern, hay) = get_user_input();
-    // let pattern = format!(r"\d+\s");
-    // let hay = "8 quick brown foxes jumps over 3 lazy dogs.";
-    dbg!(&pattern);
-    dbg!(&hay);
-    let re = RegexBuilder::new(pattern.trim_end())
-        .case_insensitive(true)
-        .multi_line(true)
-        .unicode(true)
-        .build()
-        .expect("A RegexBuilder error occured: \n");
-    let finds = re
-        .find_iter(hay.as_str())
+    let build_regex = build_regex(pattern);
+    start_matching(build_regex, hay)
+}
+fn start_matching(regex: Regex, hay: HayContainer) {
+    let finds = regex
+        .find_iter(hay.get())
         .map(|f| f.as_str().to_string())
         .collect::<Vec<String>>();
     for f in finds.into_iter() {
         println!("{f}");
     }
 }
-fn get_user_input() -> (String, String) {
+fn build_regex(regex: RegexContainer) -> Regex {
+    RegexBuilder::new(regex.sanitize().to_string().as_str())
+        .case_insensitive(true)
+        .multi_line(true)
+        .unicode(true)
+        .build()
+        .expect("A RegexBuilder error occured: \n")
+}
+fn get_user_input() -> (RegexContainer, HayContainer) {
     let pattern = collector(UserPattern::new(), InputKind::Pattern).unwrap();
     let hay = collector(UserHay::new(), InputKind::Hay).unwrap();
-    (pattern, hay)
+    (RegexContainer::new(pattern), HayContainer::new(hay))
 }
-fn collector<T: CreateObject>(func: T, kind: InputKind) -> io::Result<String> {
+fn collector<T>(func: T, kind: InputKind) -> io::Result<String>
+where
+    T: CreateObject,
+{
     match kind {
         InputKind::Pattern => {
             println!("Input Pattern: ");
@@ -46,6 +51,35 @@ fn collector<T: CreateObject>(func: T, kind: InputKind) -> io::Result<String> {
         OutputKind::Pattern(pattern) => Ok(pattern.to_string()),
         OutputKind::Hay(hay) => Ok(hay.to_string()),
         OutputKind::Default => Ok(String::new()),
+    }
+}
+struct RegexContainer {
+    pattern: String,
+}
+impl RegexContainer {
+    fn new(pattern: String) -> RegexContainer {
+        RegexContainer { pattern }
+    }
+    fn sanitize(mut self) -> Self {
+        self.pattern = self.pattern.trim_end_matches("\n").to_string();
+        self
+    }
+}
+impl Display for RegexContainer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, r"{}", self.pattern)
+    }
+}
+
+struct HayContainer {
+    hay: String,
+}
+impl HayContainer {
+    fn new(hay: String) -> HayContainer {
+        HayContainer { hay }
+    }
+    fn get(&self) -> &str {
+        self.hay.as_str()
     }
 }
 trait CreateObject {
